@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+
 using namespace std;
 
 string archivo (string nombreArchivo) {
@@ -13,7 +14,7 @@ string archivo (string nombreArchivo) {
     }
     while(!archivo.eof()){
         getline(archivo,linea);
-        textof=textof+linea;
+        textof=textof+linea+"\n";
 
     }
     archivo.close();
@@ -43,9 +44,9 @@ string convertirbinario(int n){
         binario="0"+binario;
     return binario;
 }
-char *stringtochar(string texto){
+unsigned char *stringtochar(string texto){
     unsigned long long n=texto.length();
-    char* array= new char [n+1];
+    unsigned char* array= new unsigned char [n+1];
     array[n] = '\0';
     for (unsigned long long i=0;i<n;i++){
         array[i] = texto[i];
@@ -53,7 +54,7 @@ char *stringtochar(string texto){
     return array;
 }
 void encriptacion1(string texto, int semilla){
-    char* array= stringtochar(texto);
+    unsigned char* array= stringtochar(texto);
     string binfinal="";
     int valorascii=0;
     for(int j=0;*(array+j)!='\0';j++){
