@@ -24,7 +24,7 @@ unsigned char *stringAarray(string datos) {
     return data;
 }
 
-void escribir(string **matriz, int filas, string nuevo_dato) {
+void escribir(string **matriz, int filas, string nuevo_dato, string ruta) {
     string datos = "";
     unsigned char *data, *doc_bin, *codificado;
     int largo;
@@ -48,7 +48,7 @@ void escribir(string **matriz, int filas, string nuevo_dato) {
     codificado = cambiarBits(doc_bin, 10, largo);
     doc_bin = NULL;
     data = Achar(codificado, largo);
-    escritura(data, largo, "usuarios.dat");
+    escritura(data, largo, ruta);
     liberarMatriz(matriz, filas);
 }
 
@@ -119,8 +119,50 @@ string **matriz(string usuarios, int filas) {
     return matriz;
 }
 
-bool KeyAdmin(){
+string **actualizarMatriz(string **matriz, int filas, int filas_n, string *n_dato) {
 
+    string **matx = new string *[filas_n];
+    for(int i = 0; i < filas_n; i++) {
+        matx[i] = new string[3];
+    }
+
+    for(int j = 0; j < filas; j++) {
+        for(int k = 0; k < 3; k++) {
+            matx[j][k] = matriz[j][k];
+        }
+    }
+
+    liberarMatriz(matriz, filas);
+
+    for(int l = 0; l < 3; l++) {
+        matx[filas_n-1][l] = n_dato[l];
+    }
+    delete []n_dato;
+
+    return matx;
+}
+
+void mostrarDatos(string **matriz, int filas) {
+
+    cout << "\n -------------- \n Usuario   Clave   Saldo\n\n";
+    for(int i = 0; i < filas; i++) {
+        for(int j = 0; j < 3; j++) {
+            cout << matriz[i][j] << "  ";
+        }
+        cout << endl;
+    }
+    cout << endl;
+}
+
+bool KeyAdmin(string ruta, int seed, string c_intento){
+    int largo = tamArchivo(ruta);
+    string clave =  arregloAstring(descriptMet2R(ruta, seed), largo);
+    bool c = false;
+    cout << clave << endl;
+
+    if(clave == c_intento) c = true;
+
+    return c;
 }
 
 bool usuarioExistente(string newUser, string **matriz, int filas) {
@@ -161,12 +203,12 @@ bool numValido(string numero) {
     return n;
 }
 
-void newUser(string **matriz, int filas) {
+string *newUser(string **matriz, int filas) {
 
+    string *n_user = new string[3];
     string cedula = "";
     string clave = "";
-    string dinero = "0";   //agg la plata
-    string n_user = "";
+    string dinero = "";
 
     cout << endl << "-------------------------" << endl;
 
@@ -202,9 +244,22 @@ void newUser(string **matriz, int filas) {
         }
     }
 
-    n_user = cedula + ", " + clave + ", " + dinero;
-    escribir(matriz, filas, n_user);
+    while(true) {
+        cout << "ingrese el saldo: ";
+        cin >> dinero;
+        if(!numValido(dinero)) {
+            cout << "\nIngrese un monto valido\n";
+        }
+        else {
+            break;
+        }
+    }
 
+    n_user[0] = cedula;
+    n_user[1] = clave;
+    n_user[2] = dinero;
+
+    return n_user;
 }
 
 bool claveUsuario(string **matriz, int filas, string user, string clave) {
@@ -221,16 +276,20 @@ bool claveUsuario(string **matriz, int filas, string user, string clave) {
 
 void eliminarUsuario(string **matriz, int filas, int posicion) {
 
-    if(posicion < filas) {
-        for(int i = posicion; i < filas; i++) {
+    string cc, cv, sl;
+    if(posicion < filas - 1) {
+        for(int i = posicion; i < filas-1; i++) {
             matriz[i][0] = matriz[i+1][0];
             matriz[i][1] = matriz[i+1][1];
             matriz[i][2] = matriz[i+1][2];
         }
-        delete []matriz[filas];
+        matriz[filas-2][0] = matriz[filas-1][0];
+        matriz[filas-2][1] = matriz[filas-1][1];
+        matriz[filas-2][2] = matriz[filas-1][2];
+        delete []matriz[filas-1];
     }
     else {
-        delete []matriz[filas];
+        delete []matriz[posicion];
     }
 }
 
@@ -283,7 +342,7 @@ string decod_met2(string ruta, int semilla) {
     return datos;
 }
 
-void Admin(string key, int semilla, string data) {
+void Admin(string key, int semilla, string data, int seed_admin) {
 
     string **matrix;
     string clave = "";
@@ -299,7 +358,7 @@ void Admin(string key, int semilla, string data) {
     while(true) {
         cout <<"Ingrese la clave: ";
         cin >> clave;
-        if(KeyAdmin()) {
+        if(KeyAdmin(key, seed_admin, clave)) {
             break;
         }
         else {
@@ -315,58 +374,75 @@ void Admin(string key, int semilla, string data) {
     fila = filas(usuarios);
     matrix = matriz(usuarios, fila);
 
-    cout << "\n1 - Ingresar nuevo usuario\n2 - Modificar usuario\n3 - Salir\nIngrese una opcion:";
-    cin >> opcion;
 
-    switch (opcion) {
-    case 1:
+    while(true) {
 
-        newUser(matrix, fila);
-        break;
-
-    case 2:
+        mostrarDatos(matrix, fila);
+        cout << "\n1 - Ingresar nuevo usuario\n2 - Modificar usuario\n3 - Salir y guardar\n";
 
         while(true) {
-            cout << "Ingrese el documento del usuario: ";
-            cin >> documento;
-            posicion = posUser(matrix, fila, documento);
-            if(posicion == -1) {
-                cout << "\nEl usuario no existe\n";
+            cout << "Ingrese una opcion: ";
+            cin >> opcion;
+            if((opcion < 1) || (opcion > 3)) cout << "Opcion no valida\n";
+           else break;
+        }
+
+        if(opcion == 1){
+
+           matrix = actualizarMatriz(matrix, fila, fila+1, newUser(matrix, fila));
+           fila++;
+
+        }
+
+        if(opcion == 2) {
+
+            while(true) {
+                cout << "Ingrese el documento del usuario: ";
+                cin >> documento;
+                posicion = posUser(matrix, fila, documento);
+                if(posicion == -1) {
+                    cout << "\nEl usuario no existe\n";
+                }
+                else break;
             }
-            else break;
+
+            cout << "\n1 - Modificar clave\n2 - Modificar dinero\n3 - Eliminar usuario\n4 - Atras\n";
+            while(true) {
+                cout << "Ingrese una opcion: ";
+                cin >> opcion2;
+                if((opcion2 < 1) || (opcion2 > 4)) {
+                    cout << "\nOpcion no valida\n";
+                }
+                else break;
+            }
+
+            if(opcion2 == 1) {
+                cambiarClave(matrix, posicion);
+                mostrarDatos(matrix, fila);
+            }
+
+            if(opcion2 == 2) {
+                cambiarDinero(matrix, fila, posicion);
+                mostrarDatos(matrix, fila);
+            }
+
+            if(opcion2 == 3) {
+                eliminarUsuario(matrix, fila, posicion);
+                fila--;
+            }
+
+            if(opcion2 == 4) {
+                break;
+            }
+
         }
 
-        cout << "\n1 - Modificar clave\n2 - Modificar dinero\n3 - Eliminar usuario\nIngrese una opcion: ";
-        cin >> opcion2;
+        if(opcion == 3) {
 
-        switch (opcion2) {
-        case 1:
-
-            posicion = posUser(matrix, fila, documento);
-            cambiarClave(matrix, posicion);
+            escribir(matrix, fila, "", data);
             break;
-
-        case 2:
-
-            posicion = posUser(matrix, fila, documento);
-            cambiarDinero(matrix, fila, posicion);
-            break;
-
-        case 3:
-            break;
-        default:
-            cout << "Opcion no valida\n";
         }
-        break;
-
-    case 3:
-        break;
-
-    default:
-        cout << "Opcion no valida\n";
     }
-
-
 }
 
 void User() {
@@ -376,19 +452,22 @@ void User() {
 void Cajero() {
 
     int semilla;
+    int seed_admin;
     int opcion;
     string key_admin = "sudo.dat";
     string data = "usuario.dat";
-    cout << "\ningrese la semilla de encriptacion: ";
+    cout << "\ningrese la semilla de la base de datos: ";
     cin >> semilla;
+    cout << "\ningrese la semilla de la clave administrador: ";
+    cin >> seed_admin;
     cout << "\nCajero\n\n";
-    cout << "1 - Administrador\n2 - Usuario";
+    cout << "1 - Administrador\n2 - Usuario\n";
     cout << "ingrese una opcion: ";
     cin >> opcion;
 
     switch (opcion) {
     case 1:
-        Admin(key_admin, semilla, data);
+        Admin(key_admin, semilla, data, seed_admin);
         break;
     case 2:
         User();

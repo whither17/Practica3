@@ -11,7 +11,7 @@ unsigned char *stringAarray(string datos);
 int filas(string datos);
 string **matriz(string usuarios, int filas);
 bool usuarioExistente(string newUser, string **matriz, int fila);
-void newUser(string **matriz, int filas);
+string *newUser(string **matriz, int filas);
 
 
 

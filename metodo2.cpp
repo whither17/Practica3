@@ -249,6 +249,7 @@ void descripMet2(string ruta, int semilla) {
     documento = Achar(codificado, largo);
     escritura(documento, largo, "natural.txt");
 }
+
 unsigned char *descriptMet2R(string ruta, int semilla) {
     int largo = tamArchivo(ruta);
     unsigned char *documento = archivo(ruta, largo);
