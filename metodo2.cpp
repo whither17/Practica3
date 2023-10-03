@@ -222,7 +222,6 @@ void escritura(unsigned char *datos, int largo, string ruta) {
         exit(EXIT_FAILURE);
     }
     for(int i = 0; i < largo; i++) {
-        cout << datos[i];
         archivo << datos[i];
     }
     liberarArray(datos);

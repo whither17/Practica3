@@ -7,14 +7,23 @@
 using namespace std;
 
 int main() {
-    string ruta = "usuario.dat";
-    int largo = tamArchivo(ruta);
-    string datos;
-    unsigned char *arreglo = descriptMet2R(ruta, 10);
-    datos = arregloAstring(arreglo, largo);
-    int fila = filas(datos);
-    matriz(datos, fila);
 
+    cout << "Practica 3\nAgudelo Zapata Andres Felipe\nCorrea Morales Robinson\n";
+    cout << "\n ---- \n\n1 - Programa de encriptacion\n2 - simulacion de un cajero\n";
+    cout << "Ingrese una opcion: ";
+    unsigned short opcion;
+    cin >> opcion;
+    switch (opcion) {
+    case 1:
+       // Encriptacion();
+        break;
+    case 2:
+        Cajero();
+        break;
+    default:
+        cout << "Opcion no valida";
+
+    }
     return 0;
 }
 
