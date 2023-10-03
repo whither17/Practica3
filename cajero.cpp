@@ -155,12 +155,16 @@ void mostrarDatos(string **matriz, int filas) {
 }
 
 bool KeyAdmin(string ruta, int seed, string c_intento){
+
+    bool c = true;
     int largo = tamArchivo(ruta);
-    string clave =  arregloAstring(descriptMet2R(ruta, seed), largo);
-    bool c = false;
-    cout << clave << endl;
-    c_intento += "\r";
-    if(clave == c_intento) c = true;
+    unsigned char *array;
+
+    array = descriptMet2R(ruta, seed);
+
+    for(int i = 0; i < largo; i++) {
+        if(array[i] != c_intento[i]) c = false;
+    }
 
     return c;
 }
@@ -359,6 +363,7 @@ void Admin(string key, int semilla, string data, int seed_admin) {
         cout <<"Ingrese la clave: ";
         cin >> clave;
         if(KeyAdmin(key, seed_admin, clave)) {
+            cout << "\nInicio exitoso\n";
             break;
         }
         else {
@@ -445,8 +450,19 @@ void Admin(string key, int semilla, string data, int seed_admin) {
     }
 }
 
-void User() {
+void User(int semilla, string data) {
 
+    string usuarios;                       //importante, este bloque no debe ser modificado
+    int fila;
+    string **matrix;
+    usuarios = decod_met2(data, semilla); //decodificamos archivo
+    fila = filas(usuarios);               //obtenemos las filas (importante no modificar esta variable
+    matrix = matriz(usuarios, fila);      //matriz con la info
+
+    //escribir la funcion a partir de aquí, borrar los comentarios al finalizar
+
+    escribir(matrix, fila, "", data);  //funcion para guardar los cambios, useal donde desee.
+    liberarMatriz(matrix, fila);  //importante borrar la matriz al finalizar el programa
 }
 
 void Cajero() {
@@ -456,6 +472,7 @@ void Cajero() {
     int opcion;
     string key_admin = "sudo.dat";
     string data = "usuario.dat";
+
     cout << "\ningrese la semilla de la base de datos: ";
     cin >> semilla;
     cout << "\ningrese la semilla de la clave administrador: ";
@@ -470,7 +487,7 @@ void Cajero() {
         Admin(key_admin, semilla, data, seed_admin);
         break;
     case 2:
-        User();
+        User(semilla, data);
         break;
     default:
         cout << "Opcion no valida";

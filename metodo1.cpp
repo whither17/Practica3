@@ -170,5 +170,5 @@ unsigned int binarioADecimal(string cadenaBinaria, int longitud) {
 }
 
 void met1(){
-
+  //construir la funcion invocante
 }
