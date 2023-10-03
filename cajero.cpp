@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
-#include "metodo2.h"
 #include "metodo1.h"
+#include "metodo2.h"
 using namespace std;
 
 //Administrador
@@ -24,7 +24,7 @@ unsigned char *stringAarray(string datos) {
     return data;
 }
 
-void escribir(string **matriz, int filas, string nuevo_dato, string ruta) {
+void escribir(string **matriz, int filas, string nuevo_dato, string ruta, int metodo) {
     string datos = "";
     unsigned char *data, *doc_bin, *codificado;
     int largo;
@@ -41,14 +41,22 @@ void escribir(string **matriz, int filas, string nuevo_dato, string ruta) {
         datos += "\r\n" + nuevo_dato;
     }
 
-    largo = datos.size();
-    data = stringAarray(datos);
-    doc_bin = Abinario(data, largo);
-    data = NULL;
-    codificado = cambiarBits(doc_bin, 10, largo);
-    doc_bin = NULL;
-    data = Achar(codificado, largo);
-    escritura(data, largo, ruta);
+    if(metodo == 1) {
+
+    }
+    if(metodo == 2) {
+
+        largo = datos.size();
+        data = stringAarray(datos);
+        doc_bin = Abinario(data, largo);
+        data = NULL;
+        codificado = cambiarBits(doc_bin, 10, largo);
+        doc_bin = NULL;
+        data = Achar(codificado, largo);
+        escritura(data, largo, ruta);
+
+        }
+
     liberarMatriz(matriz, filas);
 }
 
@@ -335,6 +343,12 @@ void cambiarDinero(string **matriz, int filas, int pos) {
     matriz[pos][2] = dinero;
 }
 
+string decod_met1(string ruta, int semilla) {
+    string direccion;
+    direccion = archivo(ruta);
+    desencriptacion1R(direccion,semilla);
+}
+
 string decod_met2(string ruta, int semilla) {
     unsigned char *archivo;
     string datos = "";
@@ -346,7 +360,7 @@ string decod_met2(string ruta, int semilla) {
     return datos;
 }
 
-void Admin(string key, int semilla, string data, int seed_admin) {
+void Admin(string key, int semilla, string ruta, int seed_admin, string data, int metodo) {
 
     string **matrix;
     string clave = "";
@@ -375,9 +389,8 @@ void Admin(string key, int semilla, string data, int seed_admin) {
         }
     }
 
-    usuarios = decod_met2(data, semilla);
-    fila = filas(usuarios);
-    matrix = matriz(usuarios, fila);
+    fila = filas(data);
+    matrix = matriz(data, fila);
 
 
     while(true) {
@@ -444,13 +457,13 @@ void Admin(string key, int semilla, string data, int seed_admin) {
 
         if(opcion == 3) {
 
-            escribir(matrix, fila, "", data);
+            escribir(matrix, fila, "", ruta, metodo);
             break;
         }
     }
 }
 
-void User(int semilla, string data) {
+void User(int semilla, string data, int metodo) {
 
     string usuarios;                       //importante, este bloque no debe ser modificado
     int fila;
@@ -461,7 +474,7 @@ void User(int semilla, string data) {
 
     //escribir la funcion a partir de aquí, borrar los comentarios al finalizar
 
-    escribir(matrix, fila, "", data);  //funcion para guardar los cambios, useal donde desee.
+    escribir(matrix, fila, "", data, metodo);  //funcion para guardar los cambios, useal donde desee.
     liberarMatriz(matrix, fila);  //importante borrar la matriz al finalizar el programa
 }
 
@@ -469,10 +482,22 @@ void Cajero() {
 
     int semilla;
     int seed_admin;
+    int metodo;
     int opcion;
-    string key_admin = "sudo.dat";
-    string data = "usuario.dat";
+    string key_admin;
+    string data, datos;
 
+    while(true) {
+        cout << "\nIngrese metodo de codificacion a usar (1 o 2): ";
+        cin >> metodo;
+        if((metodo == 1) || (metodo == 2)) break;
+        else cout << "\nvalor incorrecto";
+    }
+
+    cout << "\nIngrese el nombre de la base de datos: ";
+    cin >> data;
+    cout << "\nIngrese el nombre del archivo -clave admin-: ";
+    cin >> key_admin;
     cout << "\ningrese la semilla de la base de datos: ";
     cin >> semilla;
     cout << "\ningrese la semilla de la clave administrador: ";
@@ -482,12 +507,19 @@ void Cajero() {
     cout << "ingrese una opcion: ";
     cin >> opcion;
 
+    if(metodo == 1) {
+        datos = decod_met1(data, semilla);
+    }
+    if(metodo == 2) {
+        datos = decod_met2(data, semilla);
+    }
+
     switch (opcion) {
     case 1:
-        Admin(key_admin, semilla, data, seed_admin);
+        Admin(key_admin, semilla, data, seed_admin, datos, metodo);
         break;
     case 2:
-        User(semilla, data);
+        User(semilla, data, metodo);
         break;
     default:
         cout << "Opcion no valida";
