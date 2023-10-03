@@ -42,14 +42,14 @@ void Encriptacion() {
 
     unsigned short opcion;
 
-    cout << "\n\n1 - Metodo1\n2 - Metodo2\n\nIngrese una opcion:";
+    cout << "\n\n1 - Metodo1\n2 - Metodo2\n\nIngrese una opcion: ";
     cin >> opcion;
     switch (opcion) {
     case 1:
-
+        met1();
         break;
     case 2:
-
+        met2();
         break;
     default:
         cout << "Opcion no valida";

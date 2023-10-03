@@ -168,3 +168,7 @@ unsigned int binarioADecimal(string cadenaBinaria, int longitud) {
     }
     return decimal;
 }
+
+void met1(){
+
+}

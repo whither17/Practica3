@@ -17,4 +17,5 @@ void escritura(unsigned char *datos, int largo, string ruta);
 void encripMet2(string ruta, int semilla);
 void descripMet2(string ruta, int semilla);
 unsigned char *descriptMet2R(string ruta, int semilla);
+void met2();
 #endif // METODO2_H

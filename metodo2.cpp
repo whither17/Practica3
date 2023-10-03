@@ -228,7 +228,8 @@ void escritura(unsigned char *datos, int largo, string ruta) {
     archivo.close();
 }
 
-void encripMet2(string ruta, int semilla) {
+void encripMet2(string ruta, int semilla, string ruta2) {
+
     int largo = tamArchivo(ruta);
     unsigned char *documento = archivo(ruta, largo);
     unsigned char *doc_bin = Abinario(documento, largo);
@@ -236,10 +237,11 @@ void encripMet2(string ruta, int semilla) {
     unsigned char *codificado = cambiarBits(doc_bin, semilla, largo);
     doc_bin = NULL;
     documento = Achar(codificado, largo);
-    escritura(documento, largo, "codificado.dat");
+    escritura(documento, largo, ruta2);
 }
 
-void descripMet2(string ruta, int semilla) {
+void descripMet2(string ruta, int semilla, string ruta2) {
+
     int largo = tamArchivo(ruta);
     unsigned char *documento = archivo(ruta, largo);
     unsigned char *doc_bin = Abinario(documento, largo);
@@ -247,7 +249,7 @@ void descripMet2(string ruta, int semilla) {
     unsigned char *codificado = cambiarbit(doc_bin, semilla, largo);
     doc_bin = NULL;
     documento = Achar(codificado, largo);
-    escritura(documento, largo, "natural.txt");
+    escritura(documento, largo, ruta2);
 }
 
 unsigned char *descriptMet2R(string ruta, int semilla) {
@@ -261,6 +263,47 @@ unsigned char *descriptMet2R(string ruta, int semilla) {
     return documento;
 }
 
+void met2() {
+
+    string ruta_txt;
+    string ruta_dat;
+    int seed;
+    int opcion = 0;
+    while(true) {
+
+        cout << "\n1 - Codificar\n2 - Decodificar\n3 - Atras\n\ningrese una opcion: ";
+        cin >> opcion;
+
+        if(opcion == 1) {
+
+            cout << "\nIngrese la ruta o nombre del archivo sin codificar: ";
+            cin >> ruta_txt;
+            cout << "\nIngrese nombre del archivo resultante: ";
+            cin >> ruta_dat;
+            cout << "\n\nIngrese la semilla: ";
+            cin >> seed;
+            encripMet2(ruta_txt, seed, ruta_dat);
+            cout << "\n\n **Finalizado**\n\n";
+        }
+
+        if(opcion == 2) {
+
+            cout << "\nIngrese la ruta o nombre del archivo codificado: ";
+            cin >> ruta_dat;
+            cout << "\nIngrese el nombre del archivo resulatnte: ";
+            cin >> ruta_txt;
+            cout << "\n\nIngrese la semilla: ";
+            cin >> seed;
+            descripMet2(ruta_dat, seed, ruta_txt);
+            cout << "\n\n **Finalizado**\n\n";
+        }
+
+        if(opcion == 3) {
+            break;
+        }
+
+    }
+}
 
 
 

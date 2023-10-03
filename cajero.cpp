@@ -159,7 +159,7 @@ bool KeyAdmin(string ruta, int seed, string c_intento){
     string clave =  arregloAstring(descriptMet2R(ruta, seed), largo);
     bool c = false;
     cout << clave << endl;
-
+    c_intento += "\r";
     if(clave == c_intento) c = true;
 
     return c;

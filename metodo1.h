@@ -16,6 +16,7 @@ string encriptacion(string binario,int semilla);
 string remplazo1a0(string binario,int salto);
 int contador(string binario);
 string archivo (string nombreArchivo);
+void met1();
 
 class funciones
 {
