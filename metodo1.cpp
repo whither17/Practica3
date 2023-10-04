@@ -113,7 +113,7 @@ void encriptacion1(string texto, int semilla, string ruta_salida){
     delete array;
     binfinal=encriptacion(binfinal,semilla);
     text_final = binAchar(binfinal);
-    cout << text_final;
+
     printtext(text_final, ruta_salida);
 
 }
@@ -134,7 +134,6 @@ string encriptacion(string binario,int semilla){
             int next=contador(exe);
             resulatadoparcial=remplazo1a0(exe,1);
             n=next;
-
         }
         else{
             int next=contador(exe);
@@ -208,7 +207,11 @@ string desencriptacion(string binario,int semilla){
     int tt,cantbloques,limabajo,n;
     string resulatadoparcial,resultadofinal="";
     tt=binario.length();
-    cantbloques=tt/semilla;
+    if(tt%semilla==0){
+        cantbloques=tt/semilla;
+    }else{
+        cantbloques=(tt/semilla)+1;
+    }
     limabajo=0;
     for(int i=1;i<=cantbloques;i++){
         string exe=binario.substr(limabajo,semilla);

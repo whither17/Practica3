@@ -24,7 +24,7 @@ unsigned char *stringAarray(string datos) {
     return data;
 }
 
-void escribir(string **matriz, int filas, string nuevo_dato, string ruta, int metodo) {
+void escribir(string **matriz, int filas, string nuevo_dato, string ruta, int metodo, int seed) {
     string datos = "";
     unsigned char *data, *doc_bin, *codificado;
     int largo;
@@ -42,7 +42,7 @@ void escribir(string **matriz, int filas, string nuevo_dato, string ruta, int me
     }
 
     if(metodo == 1) {
-
+        encriptacion1(datos, seed, ruta);
     }
     if(metodo == 2) {
 
@@ -50,7 +50,7 @@ void escribir(string **matriz, int filas, string nuevo_dato, string ruta, int me
         data = stringAarray(datos);
         doc_bin = Abinario(data, largo);
         data = NULL;
-        codificado = cambiarBits(doc_bin, 10, largo);
+        codificado = cambiarBits(doc_bin, seed, largo);
         doc_bin = NULL;
         data = Achar(codificado, largo);
         escritura(data, largo, ruta);
@@ -162,13 +162,15 @@ void mostrarDatos(string **matriz, int filas) {
     cout << endl;
 }
 
-bool KeyAdmin(string ruta, int seed, string c_intento){
+bool KeyAdmin(string ruta, int seed, string c_intento, int metodo){
 
     bool c = true;
     int largo = tamArchivo(ruta);
     unsigned char *array;
+    string key;
 
-    array = descriptMet2R(ruta, seed);
+    if(metodo == 1) key = desencriptacion1R(archivo(ruta), seed);
+    if(metodo == 2) array = descriptMet2R(ruta, seed);
 
     for(int i = 0; i < largo; i++) {
         if(array[i] != c_intento[i]) c = false;
@@ -344,9 +346,10 @@ void cambiarDinero(string **matriz, int filas, int pos) {
 }
 
 string decod_met1(string ruta, int semilla) {
-    string direccion;
+    string direccion, datos;
     direccion = archivo(ruta);
-    desencriptacion1R(direccion,semilla);
+    datos = desencriptacion1R(direccion,semilla);
+    return datos;
 }
 
 string decod_met2(string ruta, int semilla) {
@@ -376,7 +379,7 @@ void Admin(string key, int semilla, string ruta, int seed_admin, string data, in
     while(true) {
         cout <<"Ingrese la clave: ";
         cin >> clave;
-        if(KeyAdmin(key, seed_admin, clave)) {
+        if(KeyAdmin(key, seed_admin, clave, metodo)) {
             cout << "\nInicio exitoso\n";
             break;
         }
@@ -457,25 +460,89 @@ void Admin(string key, int semilla, string ruta, int seed_admin, string data, in
 
         if(opcion == 3) {
 
-            escribir(matrix, fila, "", ruta, metodo);
+            escribir(matrix, fila, "", ruta, metodo, semilla);
             break;
         }
     }
 }
 
-void User(int semilla, string data, int metodo) {
+void Versaldo(string **matrix,int fila,int usuario,string ruta, int semilla, int metodo){
+    string saldo=matrix[usuario][2],aux;
+    int money=stoi(saldo);
+    if(money-1000<0){
+        cout<<"Saldo Insuficiente";
+    }else{
+        cout<<"\n -------------------------\n Su saldo es de: "<<money;
+        aux=to_string(money-1000);
+        cout <<"\n -------------------------\n Se debitaron 1000, nuevo saldo: "<<aux;
+        matrix[usuario][2]=aux;
+        escribir(matrix,fila,"",ruta,metodo,semilla);
+    }
 
-    string usuarios;                       //importante, este bloque no debe ser modificado
-    int fila;
+}
+void RetirarSaldo(string **matrix,int fila,int usuario,string ruta, int semilla, int metodo){
+    string saldo=matrix[usuario][2],aux;
+    int money=stoi(saldo),retiro;
+    if(money-1000<0){
+        cout<<"Saldo Insuficiente";
+    }else{
+        cout<<"\nCuanto desea retirar: ";
+        cin>>retiro;
+        if(money-1000-retiro<0){
+            cout<<"\nSaldo Insuficiente";
+        }else{
+            aux=to_string(money-1000-retiro);
+            matrix[usuario][2]=aux;
+            cout<<"\nEl nuevo saldo es: "<<matrix[usuario][2];
+        }
+    }
+
+}
+void User(int semilla, string ruta, string data, int metodo) {
+
+    string usu,key;
+    int fila,i,opcion;
     string **matrix;
-    usuarios = decod_met2(data, semilla); //decodificamos archivo
-    fila = filas(usuarios);               //obtenemos las filas (importante no modificar esta variable
-    matrix = matriz(usuarios, fila);      //matriz con la info
+    bool control=false;
 
-    //escribir la funcion a partir de aquí, borrar los comentarios al finalizar
+    fila = filas(data);
+    matrix = matriz(data, fila);
 
-    escribir(matrix, fila, "", data, metodo);  //funcion para guardar los cambios, useal donde desee.
-    liberarMatriz(matrix, fila);  //importante borrar la matriz al finalizar el programa
+    cout<<"\nIngrese su numero de documento: ";
+    cin>>usu;
+    for(i=0;i<fila;i++){
+        if(matrix[i][0]==usu){
+            while(true){
+                cout<<"\nIngrese su clave: ";
+                cin>>key;
+                if(matrix[i][1]==key){
+                    control=true;
+                    break;
+                }else{
+                    cout<<"Clave incorrecta";
+                }}
+            break;
+        }else if(i==fila-1){
+            cout<<"Usuario no encontrado";
+        }
+    }
+    if(control){
+        cout<<"\nQue quiere realizar: ";
+        cout << "\n1 - Ver saldo\n2 - Retirar dinero\n\nIngrese una opcion: ";
+        cin>>opcion;
+        switch (opcion) {
+        case 1:{
+            Versaldo(matrix,fila,i,ruta,semilla,metodo);
+            break;
+        }case 2:{
+            RetirarSaldo(matrix,fila,i,ruta,semilla,metodo);
+            break;
+        }
+        default:
+            cout << "Opcion no valida";
+        }
+        }
+
 }
 
 void Cajero() {
@@ -485,7 +552,8 @@ void Cajero() {
     int metodo;
     int opcion;
     string key_admin;
-    string data, datos;
+    string ruta_data;
+    string datos;
 
     while(true) {
         cout << "\nIngrese metodo de codificacion a usar (1 o 2): ";
@@ -495,7 +563,7 @@ void Cajero() {
     }
 
     cout << "\nIngrese el nombre de la base de datos: ";
-    cin >> data;
+    cin >> ruta_data;
     cout << "\nIngrese el nombre del archivo -clave admin-: ";
     cin >> key_admin;
     cout << "\ningrese la semilla de la base de datos: ";
@@ -504,27 +572,24 @@ void Cajero() {
     cin >> seed_admin;
     cout << "\nCajero\n\n";
     cout << "1 - Administrador\n2 - Usuario\n";
-    cout << "ingrese una opcion: ";
+    cout << "Ingrese una opcion: ";
     cin >> opcion;
 
     if(metodo == 1) {
-        datos = decod_met1(data, semilla);
+        datos = decod_met1(ruta_data, semilla);
     }
     if(metodo == 2) {
-        datos = decod_met2(data, semilla);
+        datos = decod_met2(ruta_data, semilla);
     }
 
     switch (opcion) {
     case 1:
-        Admin(key_admin, semilla, data, seed_admin, datos, metodo);
+        Admin(key_admin, semilla, ruta_data, seed_admin, datos, metodo);
         break;
     case 2:
-        User(semilla, data, metodo);
+        User(semilla, ruta_data, datos, metodo);
         break;
     default:
         cout << "Opcion no valida";
     }
 }
-
-
-

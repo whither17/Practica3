@@ -22,7 +22,3 @@ string archivo (string nombreArchivo);
 void met1();
 
 #endif // METODO1_H
-
-
-
-
